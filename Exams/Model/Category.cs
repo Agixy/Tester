@@ -10,12 +10,9 @@ namespace Exams.Model
     {
         public int Id { get; set; }
         public string CategoryName { get; set; }
-        public virtual IList<Question> Questions { get; set; }
+        public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
 
-        public Category()
-        {
-            Questions = new List<Question>();
-        }
+       
         
     }
 }
