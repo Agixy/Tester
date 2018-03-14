@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Web.Script.Serialization;
+using System.IO;
 
 namespace Exams
 {
     class Program
     {
         static void Main(string[] args)
-        {
+        {          
             bool shouldExit = false;
 
             ConsoleMenu menu = new ConsoleMenu(new[] {
@@ -22,13 +23,14 @@ namespace Exams
                 new GeneralOption("Dodaj pytanie do istniejącej kategorii", AddQuestion),
                 new GeneralOption("Przeprowadź test z kategorii", TakeTest ),
                 new GeneralOption("Exit", () => shouldExit = true),
-
                 });
 
             do
             {
                 menu.Show();
             } while (!shouldExit);
+
+            
         }
 
         private static void AddCategory()
@@ -79,7 +81,7 @@ namespace Exams
                // }
             } while (!isCategoryCorrect);
 
-            return category ;
+            return category;
         }
 
         private static void AddQuestion()
@@ -131,14 +133,13 @@ namespace Exams
         {
             Result result = new Result();
             Console.Clear();
-            int goodAnsw=0, numberOfQuestions=0;      // lepiej tu dac od razu double i nie konwertowac potem?
+            int goodAnsw=0, numberOfQuestions;
             using (var context = new ExamContext())
             {
                  Category category = CheckCategory(context);
 
                 foreach (var question in category.Questions)
                 {
-                    numberOfQuestions++;
                     Console.WriteLine(question);
 
                     foreach (var answer in RandomPermutation(question.Answers))
@@ -159,16 +160,24 @@ namespace Exams
                         goodAnsw++;
                     }
                     else
-                        Console.WriteLine("Błędna odpowiedź");  // czy rozdzielać to na błędą odpowiedź i odpowiedź ktorej nie ma w tablicy odpowiedzi?
+                        Console.WriteLine("Błędna odpowiedź");
 
-                }             
+                }
+                numberOfQuestions = category.Questions.Count();
             }
-
+            
             result.GoodAnswers = goodAnsw;
             result.AllQuestions = numberOfQuestions;
 
             Console.WriteLine(result);
-            SerializeResult(result);        // Wynik się zapisuje i mozna wyswietlić plik json ale nie wiem gdzie na dysku sie ona zapisuje
+
+            var currentDirectory = Environment.CurrentDirectory;        // sciezka w ktorej sie tworzy C:\repo\Exams\Exams\bin\Debug\Results of tests
+            var pathToDir = Path.Combine(currentDirectory, "Results of tests");
+            var pathToFile = Path.Combine(pathToDir, "result.json");
+
+            CreateDirectoryAndFile(pathToDir, pathToFile);
+            SerializeResult(result, pathToFile);        
+
             Console.ReadKey();
         }
      
@@ -189,14 +198,24 @@ namespace Exams
             }
             return resultArray;
         }
-
-        static void SerializeResult(Result result)
+      
+        public static void SerializeResult(Result result, string pathToFile)
         {
-            var json = new JavaScriptSerializer().Serialize(result);
-            //Console.WriteLine("Czy chcesz wyswietlic jonsona?");
-            //Console.ReadKey();
-            //Console.WriteLine(json);
+            var resultFile = new JavaScriptSerializer().Serialize(result);
+            File.AppendAllText(pathToFile, resultFile);        
+            Console.WriteLine(File.ReadAllText(pathToFile));
         }
 
+        static void CreateDirectoryAndFile(string pathToDir, string pathToFile)
+        {
+            var directory = Directory.CreateDirectory(pathToDir);  // utworzenie folderu
+
+            if (directory.Exists)
+            {
+                using (File.Create(pathToFile))     // utworzenie pliku
+                {
+                }
+            }
+        }
     }
 }

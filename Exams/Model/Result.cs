@@ -11,18 +11,17 @@ namespace Exams.Model
 {
     public class Result
     {
-        public double GoodAnswers { get; set; }
-        public double AllQuestions { get; set; }
-        public double ProcentResult { get; set; }
+        public int GoodAnswers { get; set; }
+        public int AllQuestions { get; set; }
 
         public override string ToString()
         {
             return $"Wynik: {GoodAnswers}/{AllQuestions} ({CountProcentResult(GoodAnswers, AllQuestions)}%)";
         }
 
-        public double CountProcentResult(double goodAnsw, double allQuest)
+        public double CountProcentResult(int goodAnsw, int allQuest)
         {
-            return Math.Round((goodAnsw / allQuest) * 100);
+            return Math.Round(((double)goodAnsw / allQuest) * 100);
         }
 
     }
