@@ -5,13 +5,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Web.Script.Serialization;
+using System.IO;
 
 namespace Exams
 {
     class Program
     {
         static void Main(string[] args)
-        {
+        {          
             bool shouldExit = false;
 
             ConsoleMenu menu = new ConsoleMenu(new[] {
@@ -19,13 +23,14 @@ namespace Exams
                 new GeneralOption("Dodaj pytanie do istniejącej kategorii", AddQuestion),
                 new GeneralOption("Przeprowadź test z kategorii", TakeTest ),
                 new GeneralOption("Exit", () => shouldExit = true),
-
                 });
 
             do
             {
                 menu.Show();
             } while (!shouldExit);
+
+            
         }
 
         private static void AddCategory()
@@ -76,7 +81,7 @@ namespace Exams
                // }
             } while (!isCategoryCorrect);
 
-            return category ;
+            return category;
         }
 
         private static void AddQuestion()
@@ -126,26 +131,91 @@ namespace Exams
 
         private static void TakeTest()
         {
+            Result result = new Result();
+            Console.Clear();
+            int goodAnsw=0, numberOfQuestions;
             using (var context = new ExamContext())
             {
-                var category = CheckCategory(context);
+                 Category category = CheckCategory(context);
 
-                foreach (var question in category.Questions)       
+                foreach (var question in category.Questions)
                 {
-                    Console.WriteLine(question.ToString());
-                    foreach (var answerr in question.Answers)
+                    Console.WriteLine(question);
+
+                    foreach (var answer in RandomPermutation(question.Answers))
                     {
-                        Console.WriteLine(answerr);
+                        Console.WriteLine(answer);
                     }
-                    Console.WriteLine("Twoja odpowiedź:");
-                    string userAnswer = Console.ReadLine();
-              
-                    
+
+                    Console.WriteLine("Twoja odpowiedz:");
+                    var userAnswer = Console.ReadLine();
+                    Answer usAnswer;
+
+                    usAnswer = context.Answers.FirstOrDefault(a => a.SingleAnswer
+                    .Equals(userAnswer, StringComparison.CurrentCultureIgnoreCase)
+                    && a.isAnswerCorrect == true);
+
+                    if (usAnswer != null)       
+                    {
+                        goodAnsw++;
+                    }
+                    else
+                        Console.WriteLine("Błędna odpowiedź");
+
                 }
-                Console.ReadKey();
-
+                numberOfQuestions = category.Questions.Count();
             }
+            
+            result.GoodAnswers = goodAnsw;
+            result.AllQuestions = numberOfQuestions;
 
+            Console.WriteLine(result);
+
+            var currentDirectory = Environment.CurrentDirectory;        // sciezka w ktorej sie tworzy C:\repo\Exams\Exams\bin\Debug\Results of tests
+            var pathToDir = Path.Combine(currentDirectory, "Results of tests");
+            var pathToFile = Path.Combine(pathToDir, "result.json");
+
+            CreateDirectoryAndFile(pathToDir, pathToFile);
+            SerializeResult(result, pathToFile);        
+
+            Console.ReadKey();
+        }
+     
+        public static IEnumerable<T> RandomPermutation<T>(IEnumerable<T> sequence)
+        {
+            Random random = new Random();
+            T[] resultArray = sequence.ToArray();
+            
+            for (int i = 0; i < resultArray.Length - 1; i++)
+            {
+                int swapIndex = random.Next(i, resultArray.Length);
+                if (swapIndex != i)
+                {
+                    T temp = resultArray[i];
+                    resultArray[i] = resultArray[swapIndex];
+                    resultArray[swapIndex] = temp;
+                }
+            }
+            return resultArray;
+        }
+      
+        public static void SerializeResult(Result result, string pathToFile)
+        {
+            var resultFile = new JavaScriptSerializer().Serialize(result);
+            File.AppendAllText(pathToFile, resultFile);        
+            Console.WriteLine(File.ReadAllText(pathToFile));
+        }
+
+        static void CreateDirectoryAndFile(string pathToDir, string pathToFile)
+        {
+            var directory = Directory.CreateDirectory(pathToDir);  // utworzenie folderu
+
+            if (directory.Exists)
+            {
+                using (File.Create(pathToFile))     // utworzenie pliku
+                {
+                }
+            }
         }
     }
 }
