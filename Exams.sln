@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Exams", "Exams\Exams.csproj", "{4914EE81-DF83-4A6C-84EB-64B6BA4341E4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResultsSaving", "ResultsSaving\ResultsSaving.csproj", "{6EF0104F-BC82-4EF6-AA1C-54E82ACF0C48}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{4914EE81-DF83-4A6C-84EB-64B6BA4341E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4914EE81-DF83-4A6C-84EB-64B6BA4341E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4914EE81-DF83-4A6C-84EB-64B6BA4341E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EF0104F-BC82-4EF6-AA1C-54E82ACF0C48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EF0104F-BC82-4EF6-AA1C-54E82ACF0C48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EF0104F-BC82-4EF6-AA1C-54E82ACF0C48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EF0104F-BC82-4EF6-AA1C-54E82ACF0C48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

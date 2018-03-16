@@ -10,7 +10,7 @@ namespace Exams.Model
     {
         public int Id { get; set; }
         public string SingleQuestion { get; set; }
-        public virtual IList<Answer> Answers { get; set; }
+        public virtual ICollection<Answer> Answers { get; set; }
         public virtual Category Cat { get; set; }
 
         public Question()

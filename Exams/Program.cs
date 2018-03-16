@@ -9,13 +9,18 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Web.Script.Serialization;
 using System.IO;
+using ResultsSaving;
 
 namespace Exams
 {
     class Program
     {
+        static SavingOperations Saving = new SavingOperations();
+
         static void Main(string[] args)
-        {          
+        {
+            Saving.Deserialization();            
+
             bool shouldExit = false;
 
             ConsoleMenu menu = new ConsoleMenu(new[] {
@@ -28,10 +33,9 @@ namespace Exams
             do
             {
                 menu.Show();
-            } while (!shouldExit);
-
-            
+            } while (!shouldExit);        
         }
+       
 
         private static void AddCategory()
         {
@@ -48,10 +52,13 @@ namespace Exams
                 {
                     myCategory = new Category();
                     myCategory.CategoryName = categoryName;
+                    context.Categories.Add(myCategory);
+                    context.SaveChanges();
                 }
-
-                context.Categories.Add(myCategory);
-                context.SaveChanges();
+                else
+                {
+                    Console.WriteLine("Taka kategoria juz istnieje");
+                }             
             }
         }
 
@@ -85,22 +92,18 @@ namespace Exams
         }
 
         private static void AddQuestion()
-        {
-            
+        {          
             using (var context = new ExamContext())
             {
-
                 var category = CheckCategory(context);
 
                 var question = new Question();
                 Console.WriteLine("Podaj pytanie");
                 question.SingleQuestion = Console.ReadLine();
 
-
                 question.Cat = category;
                 context.Questions.Add(question);
                 context.SaveChanges();
-
 
                 Console.WriteLine("Pytanie zostalo dodane");
 
@@ -131,7 +134,7 @@ namespace Exams
 
         private static void TakeTest()
         {
-            Result result = new Result();
+            ResultsSaving.Result result = new ResultsSaving.Result();
             Console.Clear();
             int goodAnsw=0, numberOfQuestions;
             using (var context = new ExamContext())
@@ -151,9 +154,9 @@ namespace Exams
                     var userAnswer = Console.ReadLine();
                     Answer usAnswer;
 
-                    usAnswer = context.Answers.FirstOrDefault(a => a.SingleAnswer
+                    usAnswer = question.Answers.FirstOrDefault(a => a.SingleAnswer
                     .Equals(userAnswer, StringComparison.CurrentCultureIgnoreCase)
-                    && a.isAnswerCorrect == true);
+                    && a.isAnswerCorrect);
 
                     if (usAnswer != null)       
                     {
@@ -164,23 +167,17 @@ namespace Exams
 
                 }
                 numberOfQuestions = category.Questions.Count();
+                result.CategoryOfExam = category.CategoryName;
             }
             
-            result.GoodAnswers = goodAnsw;
+            result.GoodAnswers = goodAnsw;         
             result.AllQuestions = numberOfQuestions;
+            Saving.ResultsList.Add(result);
 
-            Console.WriteLine(result);
+            Console.WriteLine(result);         
+            Saving.SerializeResult();        
+        }   
 
-            var currentDirectory = Environment.CurrentDirectory;        // sciezka w ktorej sie tworzy C:\repo\Exams\Exams\bin\Debug\Results of tests
-            var pathToDir = Path.Combine(currentDirectory, "Results of tests");
-            var pathToFile = Path.Combine(pathToDir, "result.json");
-
-            CreateDirectoryAndFile(pathToDir, pathToFile);
-            SerializeResult(result, pathToFile);        
-
-            Console.ReadKey();
-        }
-     
         public static IEnumerable<T> RandomPermutation<T>(IEnumerable<T> sequence)
         {
             Random random = new Random();
@@ -197,25 +194,6 @@ namespace Exams
                 }
             }
             return resultArray;
-        }
-      
-        public static void SerializeResult(Result result, string pathToFile)
-        {
-            var resultFile = new JavaScriptSerializer().Serialize(result);
-            File.AppendAllText(pathToFile, resultFile);        
-            Console.WriteLine(File.ReadAllText(pathToFile));
-        }
-
-        static void CreateDirectoryAndFile(string pathToDir, string pathToFile)
-        {
-            var directory = Directory.CreateDirectory(pathToDir);  // utworzenie folderu
-
-            if (directory.Exists)
-            {
-                using (File.Create(pathToFile))     // utworzenie pliku
-                {
-                }
-            }
-        }
+        }           
     }
 }
