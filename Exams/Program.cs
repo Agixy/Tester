@@ -68,24 +68,21 @@ namespace Exams
             bool isCategoryCorrect = false;
             do
             {
-                Console.WriteLine("Podaj nazwę kategorii:");      // Dodac wracanie dod odania kateogrii
+                Console.WriteLine("Podaj nazwę kategorii:");
                 string categoryName = Console.ReadLine();
 
-                //using (var context = new ExamContext())
-                //{
-                    var checkedCategory = context.Categories.FirstOrDefault(a => a.CategoryName == categoryName);
+                var checkedCategory = context.Categories.FirstOrDefault(a => a.CategoryName == categoryName);
 
-                    if (checkedCategory == null)
-                    {
-                        Console.WriteLine("Nie ma takiej kategorii. Podaj prawidłowa kategorie.");
-                    }
-                    else
-                    {
-                        category = checkedCategory;
-                        isCategoryCorrect = true;
-                    }
-                        
-               // }
+                if (checkedCategory == null)
+                {
+                    Console.WriteLine("Nie ma takiej kategorii. Podaj prawidłowa kategorie.");
+                }
+                else
+                {
+                    category = checkedCategory;
+                    isCategoryCorrect = true;
+                }
+
             } while (!isCategoryCorrect);
 
             return category;

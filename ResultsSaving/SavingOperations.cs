@@ -16,7 +16,6 @@ namespace ResultsSaving
         public SavingOperations()
         {
             PathToFile = Path.Combine(Environment.CurrentDirectory, "Results of tests", "result.json");
-            //PathToFile = Path.Combine(pathToDir, "result.json");  //+DateTime.Now.ToLongTimeString()+
         }
 
         public void SerializeResult()

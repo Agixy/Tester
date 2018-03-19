@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
-
 namespace ResultsSaving
 {
     public class Result
@@ -23,6 +21,5 @@ namespace ResultsSaving
         {
             return Math.Round(((double)goodAnsw / allQuest) * 100);
         }
-
     }
 }
